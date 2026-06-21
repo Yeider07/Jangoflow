@@ -190,6 +190,8 @@ La app migra sola la BD al iniciar:
 
 - `.streamlit/config.toml` — tema (oscuro + azul), menú minimal, headless/puerto.
 - `Iniciar Finanzas.command` — arranque por doble clic (macOS).
-- `requirements.txt` — dependencias (streamlit, plotly, pandas).
-- `_backup_codigo_2026-06-13/` — copia del código de 2 archivos previo al refactor.
-- `PLANTILLA_CONTEXTO.md` — plantilla genérica reutilizable (no es de esta app).
+- `requirements.txt` — dependencias de la app (streamlit, plotly, pandas).
+- `requirements-dev.txt` — dependencias de desarrollo (pytest).
+- `tests/` — tests de la lógica pura (`hipoteca`, `formato`); correr con `pytest`.
+- `backups/` — respaldos automáticos diarios de la base (rotados, ver `db.respaldar_db`).
+- `docs/PLANTILLA_CONTEXTO.md` — plantilla genérica reutilizable (no es de esta app).
