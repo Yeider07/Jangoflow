@@ -1,0 +1,5 @@
+# Dependencias solo para desarrollo (tests). No hacen falta para usar la app.
+#   .venv/bin/pip install -r requirements-dev.txt
+#   .venv/bin/pytest
+-r requirements.txt
+pytest>=8.0

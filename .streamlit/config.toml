@@ -1,0 +1,21 @@
+# Configuración del Gestor de Finanzas
+
+[theme]
+base = "dark"
+primaryColor = "#2E86AB"          # azul de acento (botones, selección)
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#1A1F2B"
+textColor = "#FAFAFA"
+font = "sans serif"
+
+[client]
+# Oculta el menú de desarrollador y el botón "Deploy" -> se ve como app propia
+toolbarMode = "minimal"
+showErrorDetails = true
+
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+port = 8501

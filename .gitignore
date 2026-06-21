@@ -1,0 +1,19 @@
+# --- Entorno virtual de Python (se recrea con requirements.txt) ---
+.venv/
+venv/
+
+# --- Caché y compilados de Python ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- Datos locales: NO se versionan (son datos personales, no código) ---
+# La protección de estos datos la da el respaldo automático en backups/.
+*.db
+backups/
+
+# --- Copia de código previa al refactor (el historial de git ya la reemplaza) ---
+_backup_codigo_2026-06-13/
+
+# --- Sistema operativo ---
+.DS_Store
