@@ -83,16 +83,19 @@ Aplicacion_Finanzas/
 │   ├── hipoteca.py              # Lógica del simulador (sin Streamlit)
 │   └── vistas/                  # Una vista por archivo (Streamlit)
 │       ├── sidebar.py · dashboard.py · general.py · registrar.py
-│       ├── historico.py · prestado.py · tarjeta.py · hipotecario.py
-│       └── componentes.py
+│       ├── historico.py · metas.py · prestado.py · tarjeta.py
+│       └── hipotecario.py · componentes.py
+├── tests/                       # Tests de la lógica pura (pytest)
+├── docs/                        # Documentación del proyecto
+│   ├── CONTEXTO_PROYECTO.md     # Estado y decisiones del proyecto
+│   └── PLANTILLA_CONTEXTO.md    # Plantilla genérica de contexto (reutilizable)
 ├── .streamlit/config.toml       # Tema y configuración de Streamlit
 ├── Iniciar Finanzas.command     # Arranque por doble clic (macOS)
 ├── finanzas.db                  # Base de datos local (se crea/migra sola)
-├── finanzas_backup_AAAA-MM-DD.db# Respaldo manual de la base
-├── requirements.txt             # Dependencias
-├── README_FINANZAS.md           # Esta guía
-├── CONTEXTO_PROYECTO.md         # Estado y decisiones del proyecto
-├── PLANTILLA_CONTEXTO.md        # Plantilla genérica de contexto (reutilizable)
+├── backups/                     # Respaldos automáticos diarios (rotados)
+├── requirements.txt             # Dependencias de la app
+├── requirements-dev.txt         # Dependencias de desarrollo (pytest)
+├── README.md                    # Esta guía
 └── .venv/                       # Entorno virtual (Python 3.12)
 ```
 
