@@ -6,6 +6,7 @@ y los datos para las gráficas.
 
 import pandas as pd
 
+from finanzas.categorias import categorizar
 from finanzas.db import conectar, listar_meses
 from finanzas.formato import num
 
@@ -235,3 +236,38 @@ def gastos_por_categoria(mes):
             "GROUP BY nombre ORDER BY total DESC", (mes,),
         ).fetchall()
     return {f["nombre"]: float(f["total"]) for f in filas if f["nombre"]}
+
+
+def gastos_categorizados(mes):
+    """Gasto del mes agrupado por categoría AUTOMÁTICA (según la descripción).
+
+    Combina compras libres (gasto diario) y gastos mensuales: aunque las
+    descripciones difieran, caen en su categoría. Devuelve {categoria: total}
+    ordenado de mayor a menor."""
+    with conectar() as con:
+        filas = con.execute(
+            "SELECT nombre, SUM(real) AS total FROM items "
+            "WHERE mes = ? AND seccion IN ('compra_libre', 'gasto') "
+            "AND real > 0 GROUP BY nombre", (mes,),
+        ).fetchall()
+    acum = {}
+    for f in filas:
+        cat = categorizar(f["nombre"])
+        acum[cat] = acum.get(cat, 0.0) + float(f["total"])
+    return dict(sorted(acum.items(), key=lambda kv: kv[1], reverse=True))
+
+
+def gasto_diario(mes):
+    """DataFrame fecha -> total de las compras libres del mes (gasto del día a
+    día), ordenado por fecha. Vacío si no hay compras con fecha."""
+    with conectar() as con:
+        df = pd.read_sql_query(
+            "SELECT fecha, SUM(real) AS total FROM items "
+            "WHERE mes = ? AND seccion = 'compra_libre' AND real > 0 "
+            "AND fecha IS NOT NULL AND fecha <> '' "
+            "GROUP BY fecha ORDER BY fecha", con, params=(mes,),
+        )
+    if df.empty:
+        return pd.DataFrame(columns=["fecha", "total"])
+    df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+    return df.dropna(subset=["fecha"]).reset_index(drop=True)
