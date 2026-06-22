@@ -17,3 +17,7 @@ _backup_codigo_2026-06-13/
 
 # --- Sistema operativo ---
 .DS_Store
+
+.claude_cache/
+.claude/    
+.claude
