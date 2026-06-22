@@ -158,21 +158,6 @@ def ahorros_acumulados(meses=None):
     return out
 
 
-def pronostico_ahorro(meses=None):
-    """Estadísticas del ritmo de ahorro para proyectar a futuro.
-    Devuelve: promedio mensual, nº de meses, total ahorrado y último mes."""
-    df = resumen_historico(meses)
-    if df.empty:
-        return {"promedio": 0.0, "meses": 0, "total": 0.0, "ultimo": 0.0}
-    serie = df["ahorros_real"]
-    return {
-        "promedio": float(serie.mean()),
-        "meses": int(len(serie)),
-        "total": float(serie.sum()),
-        "ultimo": float(serie.iloc[-1]),
-    }
-
-
 # --------------------------------------------------------------------------- #
 # Agregaciones por nombre / categoría
 # --------------------------------------------------------------------------- #
@@ -238,23 +223,39 @@ def gastos_por_categoria(mes):
     return {f["nombre"]: float(f["total"]) for f in filas if f["nombre"]}
 
 
-def gastos_categorizados(mes):
+def gastos_categorizados(mes, secciones=("compra_libre",)):
     """Gasto del mes agrupado por categoría AUTOMÁTICA (según la descripción).
 
-    Combina compras libres (gasto diario) y gastos mensuales: aunque las
-    descripciones difieran, caen en su categoría. Devuelve {categoria: total}
-    ordenado de mayor a menor."""
+    Por defecto solo las compras libres (gasto diario), que son las que tienen
+    descripción libre y se benefician de categorizarse. Devuelve
+    {categoria: total} ordenado de mayor a menor."""
+    ph = ",".join("?" * len(secciones))
     with conectar() as con:
         filas = con.execute(
             "SELECT nombre, SUM(real) AS total FROM items "
-            "WHERE mes = ? AND seccion IN ('compra_libre', 'gasto') "
-            "AND real > 0 GROUP BY nombre", (mes,),
+            f"WHERE mes = ? AND seccion IN ({ph}) AND real > 0 "
+            "GROUP BY nombre", (mes, *secciones),
         ).fetchall()
     acum = {}
     for f in filas:
         cat = categorizar(f["nombre"])
         acum[cat] = acum.get(cat, 0.0) + float(f["total"])
     return dict(sorted(acum.items(), key=lambda kv: kv[1], reverse=True))
+
+
+def gasto_detalle_categoria(mes, categoria, secciones=("compra_libre",)):
+    """Descripciones (sub-categorías reales) que componen una categoría en el
+    mes. Devuelve {descripcion: total} ordenado de mayor a menor."""
+    ph = ",".join("?" * len(secciones))
+    with conectar() as con:
+        filas = con.execute(
+            "SELECT nombre, SUM(real) AS total FROM items "
+            f"WHERE mes = ? AND seccion IN ({ph}) AND real > 0 "
+            "GROUP BY nombre", (mes, *secciones),
+        ).fetchall()
+    detalle = {f["nombre"]: float(f["total"]) for f in filas
+               if f["nombre"] and categorizar(f["nombre"]) == categoria}
+    return dict(sorted(detalle.items(), key=lambda kv: kv[1], reverse=True))
 
 
 def gasto_diario(mes):

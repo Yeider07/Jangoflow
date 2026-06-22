@@ -16,36 +16,36 @@ import unicodedata
 
 OTROS = "Otros"
 
-# (categoría, emoji, color minimalista, [palabras clave en minúscula sin tildes])
+# (categoría, emoji, color vivo, [palabras clave en minúscula sin tildes])
 CATEGORIAS = [
-    ("Mascota", "🐶", "#A8C686",
+    ("Mascota", "🐶", "#5FC97B",
      ["perr", "mascota", "veterinari", "gato", "purina"]),
-    ("Transporte", "🏍️", "#7C9EB2",
+    ("Transporte", "🏍️", "#4C9BE0",
      ["moto", "adicion", "parqueader", "gasolin", "comparend", "taxi", "uber",
       "didi", "peaje", "soat", "tecnomecanic", " bus ", "pasaje", "llanta"]),
-    ("Suscripciones", "🎮", "#9A8FB0",
+    ("Suscripciones", "🎮", "#B07BE8",
      ["claude", "game pass", "gamepass", "plan de datos", "internet", "netflix",
       "spotify", "disney", "youtube", "hbo", " max ", "suscrip", "chatgpt"]),
-    ("Servicios", "🏠", "#7BB0A8",
+    ("Servicios", "🏠", "#3FC9C0",
      ["servicio", "porteria", "factura", "pda", "arriendo", "administracion",
       " agua ", " luz ", "energia", " gas ", "predial", "epm"]),
-    ("Deudas", "💳", "#B0917D",
+    ("Deudas", "💳", "#D98E5A",
      ["deuda", "prestamo", "tarjeta", "cuota", "credito"]),
-    ("Regalos", "🎁", "#C2B280",
+    ("Regalos", "🎁", "#E8C84D",
      ["regalo", "dia del padre", "dia de la madre", "cumple", "navidad",
       "aguinaldo", "detalle"]),
-    ("Ocio", "🍻", "#C97B84",
+    ("Ocio", "🍻", "#F2607A",
      ["futbol", "cancha", "aguardiente", "pola", "cerveza", "trago", "licor",
       "salida", "fiesta", "rumba", "pegatina", "panini", "cine", "carta",
       "lectura", "juego", "viaje"]),
-    ("Alimentación", "🍔", "#E0A458",
+    ("Alimentación", "🍔", "#F2A93B",
      ["almuerz", "desayun", "cena", "comida", "salchip", "tinto", "huevo",
       "mercado", "merca", "supermercado", " ara ", "tienda", "restaurante",
       "coca", "mecato", "pan ", "fruta", "domicilio", "rappi", "cafe"]),
 ]
 
 # Color de respaldo para "Otros" / categoría sin definir.
-COLOR_OTROS = "#8A8F98"
+COLOR_OTROS = "#9AA0AA"
 
 _EMOJI = {c: e for c, e, _, _ in CATEGORIAS}
 _EMOJI[OTROS] = "📦"

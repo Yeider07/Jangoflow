@@ -4,8 +4,11 @@ import math
 
 import pytest
 
+import datetime as dt
+
 from finanzas.formato import (
-    etiqueta_mes, fecha_larga, meses_a_texto, num, pesos, sumar_meses,
+    etiqueta_mes, fecha_larga, mes_por_defecto, mes_titulo, meses_a_texto, num,
+    pesos, sumar_meses,
 )
 
 
@@ -92,3 +95,25 @@ def test_sumar_meses(anio, mes, offset, esperado):
 def test_fecha_larga():
     assert fecha_larga(2034, 2) == "febrero de 2034"
     assert fecha_larga(2026, 6) == "junio de 2026"
+
+
+# --------------------------------------------------------------------------- #
+# mes_por_defecto: hoy -> mes calendario anterior 'YYYY-MM' (pago mes vencido)
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("hoy, esperado", [
+    (dt.date(2026, 6, 21), "2026-05"),   # caso del usuario: jun -> may
+    (dt.date(2026, 1, 5), "2025-12"),    # enero retrocede de año
+    (dt.date(2026, 12, 31), "2026-11"),
+    (dt.date(2026, 3, 1), "2026-02"),
+])
+def test_mes_por_defecto(hoy, esperado):
+    assert mes_por_defecto(hoy) == esperado
+
+
+# --------------------------------------------------------------------------- #
+# mes_titulo: 'YYYY-MM' -> 'Mes Año'
+# --------------------------------------------------------------------------- #
+def test_mes_titulo():
+    assert mes_titulo("2026-05") == "Mayo 2026"
+    assert mes_titulo("2026-12") == "Diciembre 2026"
+    assert mes_titulo("basura") == "basura"

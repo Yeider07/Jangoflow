@@ -6,7 +6,7 @@ import streamlit as st
 
 from finanzas import db
 from finanzas.config import MESES_ES
-from finanzas.formato import etiqueta_mes
+from finanzas.formato import etiqueta_mes, mes_por_defecto
 
 # Etiquetas de las secciones principales (también usadas por el enrutador)
 VISTA_FINANZAS = "💰 Finanzas"
@@ -66,8 +66,15 @@ def gestionar_meses():
         st.info("👈 Crea tu primer mes en la barra lateral para empezar.")
         st.stop()
 
+    # Por defecto, situarse en el mes vencido (el calendario anterior a hoy);
+    # si no existe, el mes pasado más reciente disponible. 'meses' va de más
+    # nuevo a más viejo. Solo aplica al abrir la app: luego respeta la elección.
+    objetivo = mes_por_defecto()
+    pasados = [m for m in meses if m <= objetivo]
+    idx_def = meses.index(pasados[0]) if pasados else 0
     mes = st.sidebar.selectbox(
-        "📅 Mes activo", meses, format_func=etiqueta_mes, key="mes_activo")
+        "📅 Mes activo", meses, index=idx_def,
+        format_func=etiqueta_mes, key="mes_activo")
 
     # Al cambiar de mes, limpiar el estado de las tablas editables por mes.
     # Evita que Streamlit reaplique cambios viejos (deltas) al mes equivocado.

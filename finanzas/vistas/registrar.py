@@ -47,7 +47,6 @@ def _column_config(seccion, columnas, hoy):
             "Presupuesto", format="localized", min_value=0),
         "real": st.column_config.NumberColumn(
             "Real", format="localized", min_value=0),
-        "pagado": st.column_config.CheckboxColumn("✓"),
     }
     cfg = {c: base[c] for c in columnas}
     if seccion in ETIQUETAS_REAL:
@@ -93,7 +92,7 @@ def render(mes):
     sub_tabs = st.tabs([t for _, t, _ in SECCIONES_UI])
 
     for (seccion, titulo, singular), sub in zip(SECCIONES_UI, sub_tabs):
-        with sub:
+        with sub, st.container(key=f"dashcard_reg_{seccion}"):
             if seccion in CAPTIONS:
                 st.caption(CAPTIONS[seccion])
             df = db.cargar_seccion(mes, seccion)
