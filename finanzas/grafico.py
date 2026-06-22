@@ -6,20 +6,25 @@ casi invisible, tipografía ligera y paleta apagada. Las vistas solo construyen
 los datos y llaman a `estilizar(fig)`.
 """
 
-# Paleta apagada (desaturada) para series sin categoría fija.
-PALETA = ["#7C9EB2", "#A8C686", "#E0A458", "#C97B84", "#9A8FB0",
-          "#7BB0A8", "#C2B280", "#B0917D"]
+# Paleta viva (saturada pero no neón) para series sin categoría fija.
+PALETA = ["#4C9BE0", "#5FC97B", "#F2A93B", "#F2607A", "#B07BE8",
+          "#3FC9C0", "#E8C84D", "#D98E5A"]
 
 COLOR_TEXTO = "#C9CDD4"          # texto tenue
 COLOR_TENUE = "#8A8F98"          # ejes/secundario
 COLOR_GRID = "rgba(255,255,255,0.06)"  # grilla casi invisible
 FUENTE = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
 
+# Config para st.plotly_chart: oculta la barra de iconos (look minimalista).
+SIN_BARRA = {"displayModeBar": False}
+
 
 def estilizar(fig, alto=320, grid_y=True, grid_x=False, leyenda=True):
     """Aplica el estilo minimalista a una figura y la devuelve."""
     fig.update_layout(
         height=alto,
+        # Márgenes mínimos; automargin (abajo) expande lo justo para que las
+        # etiquetas de los ejes nunca se corten.
         margin=dict(t=28, b=10, l=10, r=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -31,7 +36,9 @@ def estilizar(fig, alto=320, grid_y=True, grid_x=False, leyenda=True):
                     bgcolor="rgba(0,0,0,0)", font=dict(size=12)),
     )
     fig.update_xaxes(showgrid=grid_x, gridcolor=COLOR_GRID, zeroline=False,
-                     showline=False, ticks="", tickfont=dict(color=COLOR_TENUE))
+                     showline=False, ticks="", automargin=True,
+                     tickfont=dict(color=COLOR_TENUE))
     fig.update_yaxes(showgrid=grid_y, gridcolor=COLOR_GRID, zeroline=False,
-                     showline=False, ticks="", tickfont=dict(color=COLOR_TENUE))
+                     showline=False, ticks="", automargin=True,
+                     tickfont=dict(color=COLOR_TENUE))
     return fig

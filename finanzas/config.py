@@ -34,7 +34,7 @@ GASTOS_PREDEFINIDOS = [
 SECCIONES = {
     # ingreso: real = el monto recibido (fijo, sin presupuesto)
     "ingreso":      ["nombre", "fecha", "real"],
-    "compra_libre": ["pagado", "nombre", "fecha", "real"],
+    "compra_libre": ["nombre", "fecha", "real"],
     "gasto":        ["nombre", "presupuesto", "real"],
     # ahorro: real = lo que ahorraste ESE mes (aporte mensual, líquido)
     "ahorro":       ["nombre", "real"],
@@ -48,8 +48,6 @@ SECCIONES = {
 # prestamos: persona = nombre de la persona; nombre = descripción de lo prestado
 PRESTAMOS_COLS = ["persona", "nombre", "fecha", "total", "devuelto"]
 TARJETA_COLS = ["concepto", "persona", "fecha", "total", "cuotas", "pagado"]
-# metas: objetivo de ahorro y cuánto llevas ahorrado para esa meta
-METAS_COLS = ["nombre", "objetivo", "ahorrado"]
 
 # Paleta de colores de las gráficas
 COLORES = {

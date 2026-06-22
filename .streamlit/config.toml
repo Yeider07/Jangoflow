@@ -19,3 +19,4 @@ gatherUsageStats = false
 [server]
 headless = true
 port = 8501
+runOnSave = true                  # recarga la app al guardar cualquier archivo

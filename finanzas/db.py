@@ -14,7 +14,7 @@ import pandas as pd
 
 from finanzas.config import (
     DB_PATH, BACKUP_DIR, MAX_BACKUPS, SECCIONES, GASTOS_PREDEFINIDOS,
-    PRESTAMOS_COLS, TARJETA_COLS, METAS_COLS,
+    PRESTAMOS_COLS, TARJETA_COLS,
 )
 from finanzas.formato import num
 
@@ -98,18 +98,6 @@ def init_db():
             )
             """
         )
-        con.execute(
-            """
-            CREATE TABLE IF NOT EXISTS metas (
-                id       INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre   TEXT,
-                objetivo REAL DEFAULT 0,     -- monto que quieres alcanzar
-                ahorrado REAL DEFAULT 0,     -- cuánto llevas para esta meta
-                orden    INTEGER DEFAULT 0
-            )
-            """
-        )
-
         # --- Migración de columnas faltantes (bases antiguas) ---
         cols = [r["name"] for r in con.execute("PRAGMA table_info(items)")]
         if "total" not in cols:
@@ -347,37 +335,3 @@ def guardar_tarjeta(df):
         con.commit()
 
 
-# --------------------------------------------------------------------------- #
-# Metas de ahorro (tabla global)
-# --------------------------------------------------------------------------- #
-def cargar_metas():
-    """DataFrame con las metas de ahorro (tabla global)."""
-    with conectar() as con:
-        df = pd.read_sql_query(
-            "SELECT nombre, objetivo, ahorrado FROM metas ORDER BY orden, id",
-            con,
-        )
-    if df.empty:
-        df = pd.DataFrame(columns=METAS_COLS)
-    df["nombre"] = df["nombre"].fillna("")
-    for c in ("objetivo", "ahorrado"):
-        df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0.0)
-    return df.reset_index(drop=True)
-
-
-def guardar_metas(df):
-    """Reemplaza toda la tabla global de metas con el DataFrame."""
-    with conectar() as con:
-        con.execute("DELETE FROM metas")
-        for orden, (_, fila) in enumerate(df.iterrows()):
-            nombre = str(fila.get("nombre", "") or "").strip()
-            objetivo = num(fila.get("objetivo"))
-            ahorrado = num(fila.get("ahorrado"))
-            if not nombre and objetivo == 0 and ahorrado == 0:
-                continue
-            con.execute(
-                "INSERT INTO metas (nombre, objetivo, ahorrado, orden) "
-                "VALUES (?, ?, ?, ?)",
-                (nombre, objetivo, ahorrado, orden),
-            )
-        con.commit()
