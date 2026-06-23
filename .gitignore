@@ -18,6 +18,9 @@ _backup_codigo_2026-06-13/
 # --- Sistema operativo ---
 .DS_Store
 
+# --- Claude Code / asistente de IA (configuración local, no se versiona) ---
+.claude/
+**/.claude/
 .claude_cache/
-.claude/    
-.claude
+CLAUDE.md
+**/CLAUDE.md
