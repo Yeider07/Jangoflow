@@ -1,4 +1,4 @@
-"""Vista General: patrimonio acumulado y gráficas (filtrable por meses)."""
+"""Vista Patrimonio: panorama financiero acumulado (filtrable por meses)."""
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -56,9 +56,9 @@ def render():
     st.caption(f"Resumen de **{tg['meses']} mes(es)** seleccionados "
                f"({', '.join(etiqueta_mes(m) for m in sorted(meses_filtro))}).")
 
-    # --- Patrimonio ---
+    # --- Resumen del patrimonio ---
     with st.container(key="dashcard_patrimonio"):
-        st.subheader("💎 Patrimonio")
+        st.subheader("💎 Resumen")
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("🏦 Ahorro total", pesos(tg["ahorros"]),
                   help="Todo lo que has ahorrado (incluye lo que prestaste).")

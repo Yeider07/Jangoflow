@@ -1,4 +1,4 @@
-"""Vista Dashboard: resumen del mes activo (diseño minimalista)."""
+"""Vista Este mes: balance y gastos del mes activo (diseño por tarjetas)."""
 
 import plotly.graph_objects as go
 import streamlit as st

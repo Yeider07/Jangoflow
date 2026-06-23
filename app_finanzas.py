@@ -161,17 +161,24 @@ else:
         unsafe_allow_html=True,
     )
 
-    t_general, t_dash, t_edit, t_prestado, t_hist = st.tabs(
-        ["🌎 General", "📊 Dashboard", "✏️ Registrar / Editar",
-         "🤝 Prestado", "📈 Histórico"])
+    # Histórico va primero: es lo que el usuario debe ver al iniciar (Streamlit
+    # selecciona la primera pestaña por defecto). Luego el resto en su orden.
+    t_hist, t_patrimonio, t_mes, t_prestado = st.tabs(
+        ["📈 Histórico", "💎 Patrimonio", "📅 Este mes", "🤝 Prestado"])
 
-    with t_general:
-        general.render()
-    with t_dash:
-        dashboard.render(mes)
-    with t_edit:
-        registrar.render(mes)
-    with t_prestado:
-        prestado.render()
     with t_hist:
         historico.render()
+    with t_patrimonio:
+        general.render()
+    with t_mes:
+        # "Este mes" reúne el resumen del mes y la edición de cada sección:
+        # aquí se ve cómo va el mes y se registra/edita todo.
+        secciones = registrar.SECCIONES_UI
+        sub = st.tabs(["📊 Resumen"] + [t for _, t, _ in secciones])
+        with sub[0]:
+            dashboard.render(mes)
+        for i, (seccion, _titulo, singular) in enumerate(secciones, start=1):
+            with sub[i]:
+                registrar.render_seccion(mes, seccion, singular)
+    with t_prestado:
+        prestado.render()
