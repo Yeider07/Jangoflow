@@ -46,39 +46,42 @@ def render():
     df_pag = df[pagada].reset_index(drop=True)
     cfg = _column_config()
 
-    st.markdown("**Compras activas (pendientes por pagar)**")
-    ed_act = st.data_editor(
-        df_act, key="ed_tarjeta_act", num_rows="dynamic",
-        width="stretch", hide_index=True,
-        column_config=cfg, column_order=_ORDEN)
+    with st.container(key="dashcard_tarjeta_main"):
+        st.markdown("**Compras activas (pendientes por pagar)**")
+        ed_act = st.data_editor(
+            df_act, key="ed_tarjeta_act", num_rows="dynamic",
+            width="stretch", hide_index=True,
+            column_config=cfg, column_order=_ORDEN)
 
-    with st.expander(f"✅ Compras ya pagadas ({len(df_pag)})", expanded=False):
-        if df_pag.empty:
-            st.caption("Aún no hay compras pagadas.")
-            ed_pag = df_pag
-        else:
-            ed_pag = st.data_editor(
-                df_pag, key="ed_tarjeta_pag", num_rows="dynamic",
-                width="stretch", hide_index=True,
-                column_config=cfg, column_order=_ORDEN)
+        with st.expander(f"✅ Compras ya pagadas ({len(df_pag)})",
+                         expanded=False):
+            if df_pag.empty:
+                st.caption("Aún no hay compras pagadas.")
+                ed_pag = df_pag
+            else:
+                ed_pag = st.data_editor(
+                    df_pag, key="ed_tarjeta_pag", num_rows="dynamic",
+                    width="stretch", hide_index=True,
+                    column_config=cfg, column_order=_ORDEN)
 
-    if st.button("💾 Guardar tarjeta"):
-        combinado = pd.concat([ed_act, ed_pag], ignore_index=True)
-        db.guardar_tarjeta(combinado.drop(columns=["pendiente"], errors="ignore"))
-        st.session_state.pop("ed_tarjeta_act", None)
-        st.session_state.pop("ed_tarjeta_pag", None)
-        st.success("Tarjeta guardada.")
-        st.rerun()
+        if st.button("💾 Guardar tarjeta"):
+            combinado = pd.concat([ed_act, ed_pag], ignore_index=True)
+            db.guardar_tarjeta(
+                combinado.drop(columns=["pendiente"], errors="ignore"))
+            st.session_state.pop("ed_tarjeta_act", None)
+            st.session_state.pop("ed_tarjeta_pag", None)
+            st.success("Tarjeta guardada.")
+            st.rerun()
 
-    todo = pd.concat([ed_act, ed_pag], ignore_index=True)
-    if not todo.empty:
-        tt = float(pd.to_numeric(todo["total"], errors="coerce").sum())
-        tp = float(pd.to_numeric(todo["pagado"], errors="coerce").sum())
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Total en tarjeta", pesos(tt))
-        c2.metric("Pagado", pesos(tp))
-        c3.metric("Pendiente por pagar", pesos(tt - tp))
+        todo = pd.concat([ed_act, ed_pag], ignore_index=True)
+        if not todo.empty:
+            tt = float(pd.to_numeric(todo["total"], errors="coerce").sum())
+            tp = float(pd.to_numeric(todo["pagado"], errors="coerce").sum())
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Total en tarjeta", pesos(tt))
+            c2.metric("Pagado", pesos(tp))
+            c3.metric("Pendiente por pagar", pesos(tt - tp))
 
-    st.info("💡 Esto es solo seguimiento. El gasto real de la tarjeta lo sigues "
-            "registrando en **Finanzas → Deudas** como ya lo haces. Las compras "
-            "pagadas se ocultan arriba para no llenar la vista.")
+        st.info("💡 Esto es solo seguimiento. El gasto real de la tarjeta lo "
+                "sigues registrando en **Finanzas → Deudas** como ya lo haces. "
+                "Las compras pagadas se ocultan arriba para no llenar la vista.")
