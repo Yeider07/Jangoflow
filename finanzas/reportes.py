@@ -243,6 +243,26 @@ def gastos_categorizados(mes, secciones=("compra_libre",)):
     return dict(sorted(acum.items(), key=lambda kv: kv[1], reverse=True))
 
 
+def gastos_libres_categorizados(meses=None):
+    """Compras libres agrupadas por categoría automática en TODO el periodo.
+
+    Como gastos_categorizados pero sobre varios meses (o todos): sirve para ver
+    qué categorías usas más a lo largo del tiempo. {categoria: total} de mayor a
+    menor."""
+    clausula, params = _filtro_meses(meses)
+    with conectar() as con:
+        filas = con.execute(
+            "SELECT nombre, SUM(real) AS total FROM items "
+            f"WHERE seccion = 'compra_libre' AND real > 0{clausula} "
+            "GROUP BY nombre", params,
+        ).fetchall()
+    acum = {}
+    for f in filas:
+        cat = categorizar(f["nombre"])
+        acum[cat] = acum.get(cat, 0.0) + float(f["total"])
+    return dict(sorted(acum.items(), key=lambda kv: kv[1], reverse=True))
+
+
 def gasto_detalle_categoria(mes, categoria, secciones=("compra_libre",)):
     """Descripciones (sub-categorías reales) que componen una categoría en el
     mes. Devuelve {descripcion: total} ordenado de mayor a menor."""
