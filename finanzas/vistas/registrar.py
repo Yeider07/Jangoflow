@@ -1,14 +1,16 @@
-"""Vista Registrar / Editar: tablas editables por mes (sub-pestañas)."""
+"""Vista Registrar / Editar: alta rápida por formulario + tabla para editar."""
 
 import datetime as dt
+import re
 
 import pandas as pd
 import streamlit as st
 
 from finanzas import db
+from finanzas.config import SECCIONES
 from finanzas.formato import pesos
 
-# (clave de sección, etiqueta de la pestaña, singular para el botón guardar)
+# (clave de sección, etiqueta de la pestaña, singular para los botones)
 SECCIONES_UI = [
     ("ingreso", "💚 Ingresos", "ingreso"),
     ("compra_libre", "🛒 Compras libres", "compra libre"),
@@ -35,6 +37,17 @@ CAPTIONS = {
 }
 
 
+def _etiqueta(seccion, col):
+    """Etiqueta legible de una columna para el formulario."""
+    if col == "real":
+        return ETIQUETAS_REAL.get(seccion, "Real")
+    if col == "presupuesto":
+        return "Cuota mes" if seccion == "deuda" else "Presupuesto"
+    if col == "total":
+        return "Total deuda"
+    return col.capitalize()
+
+
 def _column_config(seccion, columnas, hoy):
     """Configuración de columnas del editor para una sección."""
     base = {
@@ -58,8 +71,49 @@ def _column_config(seccion, columnas, hoy):
     return cfg
 
 
+def _form_agregar(mes, seccion, singular, hoy):
+    """Formulario simple para agregar UN registro (cómodo en el celular).
+
+    Usa campos nativos (texto, fecha, número) en vez de la tabla tipo Excel,
+    que en móvil se corta y es difícil de tocar."""
+    cols = SECCIONES[seccion]
+    with st.form(key=f"add_{seccion}_{mes}", clear_on_submit=True):
+        nombre = st.text_input("Nombre", placeholder="p. ej. Salchipapa")
+        fecha = st.date_input("Fecha", value=hoy) if "fecha" in cols else None
+        # Montos como text_input (no number_input): en móvil, dentro de un form,
+        # el number_input a veces no confirma el valor al enviar y guardaba 0.
+        # Aquí se teclea el número y se extraen los dígitos (acepta $ y puntos).
+        montos = {}
+        for col in ("total", "presupuesto", "real"):
+            if col in cols:
+                raw = st.text_input(_etiqueta(seccion, col) + " ($)",
+                                    value="", placeholder="0")
+                digitos = re.sub(r"[^\d]", "", raw or "")
+                montos[col] = float(digitos) if digitos else 0.0
+        enviado = st.form_submit_button(f"➕ Agregar {singular}",
+                                        width="stretch", type="primary")
+
+    if not enviado:
+        return
+    if not nombre.strip() and not any(montos.values()):
+        st.warning("Escribe al menos un nombre o un monto.")
+        return
+
+    nueva = {"nombre": nombre.strip()}
+    if "fecha" in cols:
+        nueva["fecha"] = pd.to_datetime(fecha)
+    nueva.update(montos)
+
+    df = db.cargar_seccion(mes, seccion)
+    df = pd.concat([df, pd.DataFrame([nueva])], ignore_index=True)
+    db.guardar_seccion(mes, seccion, df)
+    st.session_state.pop(f"editor_{seccion}_{mes}", None)
+    st.success(f"{singular.capitalize()} agregado.")
+    st.rerun()
+
+
 def _pie(seccion, editado):
-    """Totales al pie del editor."""
+    """Totales al pie de la sección."""
     if editado.empty or "real" not in editado:
         return
     tot_r = float(pd.to_numeric(editado["real"], errors="coerce").sum())
@@ -84,25 +138,31 @@ def _pie(seccion, editado):
         st.caption(f"Total gastado: **{pesos(tot_r)}**")
 
 
-def render(mes):
-    st.caption(
-        "Edita como en Excel: escribe, agrega filas con ➕, borra seleccionando "
-        "la fila. Pulsa **💾 Guardar** en cada sección para conservar los cambios.")
-    hoy = dt.date.today()
-    sub_tabs = st.tabs([t for _, t, _ in SECCIONES_UI])
+def render_seccion(mes, seccion, singular):
+    """Una sección editable del mes: formulario de alta + totales + tabla.
 
-    for (seccion, titulo, singular), sub in zip(SECCIONES_UI, sub_tabs):
-        with sub, st.container(key=f"dashcard_reg_{seccion}"):
-            if seccion in CAPTIONS:
-                st.caption(CAPTIONS[seccion])
-            df = db.cargar_seccion(mes, seccion)
+    Se renderiza dentro de la pestaña 'Este mes' (junto al resumen), que es
+    donde se gestiona todo lo del mes activo."""
+    hoy = dt.date.today()
+    with st.container(key=f"dashcard_reg_{seccion}"):
+        st.caption(
+            "Agrega con el formulario **➕**. Para corregir o borrar, abre "
+            "**✏️ Editar o borrar (tabla)** abajo.")
+        if seccion in CAPTIONS:
+            st.caption(CAPTIONS[seccion])
+
+        _form_agregar(mes, seccion, singular, hoy)
+
+        df = db.cargar_seccion(mes, seccion)
+        _pie(seccion, df)
+
+        with st.expander("✏️ Editar o borrar (tabla)", expanded=False):
             editado = st.data_editor(
                 df, key=f"editor_{seccion}_{mes}", num_rows="dynamic",
                 width="stretch", hide_index=True,
                 column_config=_column_config(seccion, df.columns, hoy))
-            _pie(seccion, editado)
-            if st.button(f"💾 Guardar {singular}", key=f"save_{seccion}_{mes}"):
+            if st.button("💾 Guardar cambios", key=f"save_{seccion}_{mes}"):
                 db.guardar_seccion(mes, seccion, editado)
                 st.session_state.pop(f"editor_{seccion}_{mes}", None)
-                st.success(f"{titulo} guardado.")
+                st.success(f"{singular.capitalize()} actualizado.")
                 st.rerun()

@@ -36,10 +36,17 @@ La app tiene tres áreas independientes:
 ### 💰 Finanzas (pestañas)
 | Pestaña | Para qué sirve |
 |---|---|
-| 🌎 **General** | Patrimonio acumulado (ahorro total/líquido, invertido, por cobrar, patrimonio) y gráficas. Incluye un **selector de meses** para filtrar y proyectar. |
-| 📊 **Dashboard** | Resumen del **mes activo**: tarjetas, Presupuesto vs Real, distribución de gastos. |
-| ✏️ **Registrar / Editar** | Tablas editables por mes: Ingresos, Compras libres, Gastos, Ahorros, Invertido, Deudas. |
-| 📈 **Histórico** | Evolución mes a mes (ingresos, gastos, disponible). |
+| 📈 **Histórico** | Pestaña **inicial** (lo primero que ves al abrir). Resumen del periodo (tasa de ahorro media, gasto libre/mes), evolución mes a mes, **gasto libre por mes** y **por categoría (gráfica donut)**, disponible por mes y tabla con **% de ahorro**. |
+| 💎 **Patrimonio** | *(antes "General")* Patrimonio acumulado (ahorro total/líquido, invertido, por cobrar, patrimonio) y gráficas. Incluye un **selector de meses** para filtrar y proyectar. |
+| 📅 **Este mes** | *(antes "Dashboard" + "Registrar / Editar")* Todo lo del **mes activo** en sub-pestañas: **📊 Resumen** (tarjetas, Presupuesto vs Real, distribución de gastos) y las 6 secciones para **registrar/editar** (Ingresos, Compras libres, Gastos, Ahorros, Invertido, Deudas). |
+| 🤝 **Prestado** | Lista global de dinero prestado (detalle abajo). |
+
+> **Registrar es móvil-friendly**: cada sección tiene un formulario **➕ Agregar**
+> con campos normales (nombre, fecha, monto) cómodo en el celular; la tabla tipo
+> Excel queda en un desplegable **✏️ Editar o borrar** solo para correcciones.
+
+> **Diseño**: tema oscuro con **tarjetas tipo "glass"** y acentos menta; las
+> métricas se reorganizan a 2 por fila en pantallas de celular.
 
 ### 💳 Tarjeta de crédito
 Seguimiento **aislado** (no afecta finanzas) de compras y diferidos de la tarjeta,
@@ -83,7 +90,7 @@ Aplicacion_Finanzas/
 │   ├── hipoteca.py              # Lógica del simulador (sin Streamlit)
 │   └── vistas/                  # Una vista por archivo (Streamlit)
 │       ├── sidebar.py · dashboard.py · general.py · registrar.py
-│       ├── historico.py · metas.py · prestado.py · tarjeta.py
+│       ├── historico.py · prestado.py · tarjeta.py
 │       └── hipotecario.py · componentes.py
 ├── tests/                       # Tests de la lógica pura (pytest)
 ├── docs/                        # Documentación del proyecto
