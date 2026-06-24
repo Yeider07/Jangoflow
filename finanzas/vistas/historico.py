@@ -88,21 +88,37 @@ def render():
         if not cats:
             st.caption("Sin compras libres registradas.")
         else:
-            nombres = list(cats.keys())[::-1]   # mayor arriba en barras h.
+            nombres = list(cats.keys())            # ya viene de mayor a menor
             valores = [cats[c] for c in nombres]
             etiquetas = [categorias.etiqueta(c) for c in nombres]
             colores = [categorias.color(c) for c in nombres]
-            fig = go.Figure(go.Bar(
-                x=valores, y=etiquetas, orientation="h", marker_color=colores,
-                marker_cornerradius=7,
-                text=[pesos(v) for v in valores], textposition="auto",
-                hovertemplate="%{y}: %{text}<extra></extra>"))
-            grafico.estilizar(fig, alto=max(220, 44 * len(nombres)),
-                              grid_y=False, grid_x=True, leyenda=False)
+            tot = sum(valores)
+            top = nombres[0]
+            fig = go.Figure(go.Pie(
+                labels=etiquetas, values=valores, hole=0.58, sort=False,
+                direction="clockwise",
+                marker=dict(colors=colores,
+                            line=dict(color="#0E1117", width=2)),
+                textposition="inside", textinfo="percent",
+                hovertemplate="%{label}: $%{value:,.0f} "
+                              "(%{percent})<extra></extra>"))
+            fig.update_layout(
+                height=380, margin=dict(t=20, b=10, l=10, r=10),
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(family=grafico.FUENTE, color=grafico.COLOR_TEXTO,
+                          size=13),
+                hoverlabel=dict(bgcolor="#1A1F2B",
+                                bordercolor="rgba(0,0,0,0)",
+                                font=dict(family=grafico.FUENTE,
+                                          color=grafico.COLOR_TEXTO)),
+                legend=dict(orientation="h", y=-0.08, x=0.5, xanchor="center",
+                            font=dict(size=12)),
+                annotations=[dict(text=f"Total<br><b>{pesos(tot)}</b>",
+                                  showarrow=False, x=0.5, y=0.5,
+                                  font=dict(size=14,
+                                            color=grafico.COLOR_TEXTO))])
             st.plotly_chart(fig, theme=None, width="stretch",
                             config=grafico.SIN_BARRA)
-            top = max(cats, key=cats.get)
-            tot = sum(cats.values())
             st.caption(_md(f"Lidera **{categorias.etiqueta(top)}** "
                            f"({_pct(cats[top], tot):.0f}% del gasto libre) · "
                            f"promedio **{pesos(libre_prom)}**/mes"))

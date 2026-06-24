@@ -1,6 +1,7 @@
 """Vista Registrar / Editar: alta rápida por formulario + tabla para editar."""
 
 import datetime as dt
+import re
 
 import pandas as pd
 import streamlit as st
@@ -79,12 +80,16 @@ def _form_agregar(mes, seccion, singular, hoy):
     with st.form(key=f"add_{seccion}_{mes}", clear_on_submit=True):
         nombre = st.text_input("Nombre", placeholder="p. ej. Salchipapa")
         fecha = st.date_input("Fecha", value=hoy) if "fecha" in cols else None
+        # Montos como text_input (no number_input): en móvil, dentro de un form,
+        # el number_input a veces no confirma el valor al enviar y guardaba 0.
+        # Aquí se teclea el número y se extraen los dígitos (acepta $ y puntos).
         montos = {}
         for col in ("total", "presupuesto", "real"):
             if col in cols:
-                montos[col] = st.number_input(
-                    _etiqueta(seccion, col) + " ($)", min_value=0.0,
-                    step=1000.0, value=0.0, format="%.0f")
+                raw = st.text_input(_etiqueta(seccion, col) + " ($)",
+                                    value="", placeholder="0")
+                digitos = re.sub(r"[^\d]", "", raw or "")
+                montos[col] = float(digitos) if digitos else 0.0
         enviado = st.form_submit_button(f"➕ Agregar {singular}",
                                         width="stretch", type="primary")
 

@@ -24,3 +24,6 @@ _backup_codigo_2026-06-13/
 .claude_cache/
 CLAUDE.md
 **/CLAUDE.md
+
+# --- Documentación de contexto: local, no se versiona en el repo ---
+docs/
